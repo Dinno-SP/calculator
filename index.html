@@ -29,9 +29,14 @@
             box-sizing: border-box;
         }
         
-        .main-layout { display: flex; justify-content: space-between; align-items: flex-start; }
+        .main-layout { 
+            display: flex; 
+            justify-content: center; /* Rapikan ke tengah */
+            align-items: flex-start; 
+            gap: 2%; /* Jarak antar sisi */
+        }
 
-        .side { width: 32%; text-align: center; }
+        .side { width: 33%; text-align: center; }
         .side h2 { margin: 0 0 15px 0; font-size: 24px; color: #fff; font-weight: bold;}
 
         .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -52,7 +57,7 @@
         
         .slot-interactive { cursor: pointer; border: 2px solid #111; box-shadow: 2px 2px 5px rgba(0,0,0,0.4); background-color: #d1d5db; }
         .slot-interactive:hover { border-color: #f39c12; transform: translateY(-2px); }
-        .slot-disabled { background-color: rgba(255,255,255,0.05); border: 2px dashed #555; cursor: default; }
+        .slot-disabled { background-color: #4a4a4a; border: 2px solid #222; cursor: default; } /* Warna slot mati direvisi */
         .slot-plus { font-size: 60px; color: #888; font-weight: 300; }
 
         .fruit-in-slot { width: 100%; height: 100%; display: flex; flex-direction: column; }
@@ -63,17 +68,17 @@
         /* Tampilan Center Area */
         .center-area { width: 30%; text-align: center; display: flex; flex-direction: column; align-items: center;}
         
-        .controls-header { display: flex; justify-content: center; width: 100%; margin-bottom: 20px; }
-        .reset-btn { background-color: #e0e0e0; color: #111; padding: 8px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 14px;}
+        .reset-btn { background-color: #e0e0e0; color: #111; padding: 6px 18px; border-radius: 5px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 14px; margin-bottom: 20px;}
         .reset-btn:hover { background-color: #fff; }
-        .diff-label { color: #ff6b6b; font-size: 14px; font-weight: bold; margin-top: 20px; text-transform: uppercase; letter-spacing: 1px;}
-        .diff-percent { font-size: 60px; font-weight: bold; color: #2ecc71; margin: 5px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);}
-        .status-text { font-size: 20px; font-weight: bold; color: #2ecc71; margin-top: 5px;}
         
-        .missing-info { background-color: rgba(231, 76, 60, 0.2); border: 1px solid #e74c3c; color: #ff7675; padding: 6px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; margin-top: 10px; display: none; width: 90%;}
-        .missing-info span { color: white; }
+        .diff-label { color: #ff6b6b; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;}
+        .diff-percent { font-size: 65px; font-weight: bold; color: #2ecc71; margin: -5px 0 5px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);}
+        .status-text { font-size: 20px; font-weight: bold; color: #2ecc71; margin-top: 0;}
+        
+        .missing-info { background-color: rgba(231, 76, 60, 0.2); border: 1px solid #e74c3c; color: #ff7675; padding: 8px 12px; border-radius: 5px; font-size: 15px; font-weight: bold; margin-top: 5px; display: none; width: 90%;}
+        .missing-info span { color: white; font-size: 18px; font-weight: 900;} /* Font Beli diperbesar */
 
-        /* Tampilan Harga Baru */
+        /* Tampilan Harga */
         .totals-box { margin-top: 10px; width: 100%;}
         .total-row { 
             background-color: #e0e0e0; 
@@ -86,15 +91,24 @@
             text-align: left;
         }
 
-        /* MODAL POP UP */
+        /* MODAL POP UP DENGAN ANIMASI */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000;
+            background-color: rgba(0,0,0,0.6); 
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+            opacity: 0; /* Untuk animasi awal */
+            transition: opacity 0.15s ease-in-out;
         }
+        .modal-overlay.show { opacity: 1; } /* Class aktif animasi */
+
         .modal-content {
             background-color: rgba(30, 30, 30, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             width: 90%; max-width: 850px; height: 85%; border-radius: 12px; border: 1px solid #555; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            transform: scale(0.8); /* Ukuran awal animasi */
+            transition: transform 0.15s ease-in-out;
         }
+        .modal-overlay.show .modal-content { transform: scale(1); } /* Ukuran akhir animasi */
+
         .modal-header { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
         .modal-header h3 { margin: 0; color: #f1c40f; font-size: 16px;}
         
@@ -132,7 +146,7 @@
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 5px; }
 
         /* =========================================
-           TAMPILAN KHUSUS HP (NO SCROLL / KIRI-KANAN)
+           TAMPILAN KHUSUS HP (NO SCROLL / FIT)
            ========================================= */
         @media screen and (max-width: 768px) {
             body {
@@ -143,11 +157,12 @@
             .calculator-container {
                 width: 100%;
                 height: 100%;
-                padding: 10px;
+                padding: 15px 10px 10px 10px;
                 border-radius: 0;
                 display: flex;
                 flex-direction: column;
-                justify-content: flex-start;
+                justify-content: flex-start; /* Dirapatkan ke atas */
+                align-items: center;
                 background-color: #333333; 
                 box-shadow: none;
             }
@@ -155,38 +170,40 @@
             .main-layout {
                 flex-direction: row; 
                 flex-wrap: wrap; 
-                justify-content: space-between;
+                justify-content: center; /* Kiri-Kanan lebih rapat ke tengah */
+                gap: 4%; /* Jarak celah tengah */
                 align-items: flex-start;
-                height: 100%;
+                width: 100%;
             }
             
-            .side { width: 48%; }
-            .side h2 { font-size: 20px; margin: 0 0 10px 0; font-weight: bold;}
+            .side { width: 45%; } /* Lebar sedikit dikurangi agar tidak mentok pinggir */
+            .side h2 { font-size: 18px; margin: 0 0 8px 0; font-weight: bold;}
             
             .slot-grid { gap: 6px; }
-            .slot { height: 16vh; min-height: 70px; border-width: 2px; border-radius: 5px;}
-            .slot-plus { font-size: 50px; }
+            .slot { height: 15vh; min-height: 70px; border-width: 2px; border-radius: 5px;}
+            .slot-plus { font-size: 45px; }
             
             .fruit-name { font-size: 10px; padding: 2px 0; border-bottom-width: 1px;}
             .btn-img-container { padding: 2px; }
             .fruit-price-tag { font-size: 10px; padding: 2px; border-top-width: 1px;}
             
-            .totals-box { margin-top: 10px; }
-            .total-row { font-size: 13px; padding: 6px 8px; border-radius: 4px; box-shadow: 0 2px 3px rgba(0,0,0,0.5);}
+            .totals-box { margin-top: 8px; }
+            .total-row { font-size: 12px; padding: 6px 8px; border-radius: 4px; box-shadow: 0 2px 3px rgba(0,0,0,0.5);}
             
+            /* Center Area diatur agar marginnya pas, tidak terlalu jauh */
             .center-area { 
                 width: 100%; 
                 order: 3; 
-                margin-top: 15px; 
+                margin-top: 15px; /* Jarak dipendekkan agar dekat dengan slot */
                 padding: 0;
             }
-            .controls-header { margin-bottom: 5px; }
-            .reset-btn { padding: 6px 15px; font-size: 13px;}
             
-            .diff-label { display: none; }
-            .diff-percent { font-size: 70px; margin: 0; text-shadow: 3px 3px 5px rgba(0,0,0,0.6);}
-            .status-text { font-size: 18px; margin-top: 0;}
-            .missing-info { padding: 4px; font-size: 11px; margin-top: 5px; width: 100%; }
+            .reset-btn { padding: 6px 15px; font-size: 12px; margin-bottom: 10px;}
+            
+            .diff-label { display: block; font-size: 13px; margin-bottom: 0px;} /* Teks dimunculkan */
+            .diff-percent { font-size: 65px; margin: 0; text-shadow: 3px 3px 5px rgba(0,0,0,0.6);}
+            .missing-info { padding: 8px 10px; font-size: 13px; margin-top: 5px; width: 90%; }
+            .missing-info span { font-size: 16px; }
             
             /* Modal HP */
             .modal-content { height: 92vh; width: 95vw; }
@@ -201,10 +218,6 @@
 <body>
 
     <div class="calculator-container">
-        <div class="controls-header" style="display: none;" id="mobile-reset">
-            <div class="reset-btn" onclick="resetAll()">Reset</div>
-        </div>
-
         <div class="main-layout">
             <div class="side" id="side-you">
                 <h2>You</h2>
@@ -215,9 +228,7 @@
             </div>
 
             <div class="center-area">
-                <div class="controls-header" id="pc-reset">
-                    <div class="reset-btn" onclick="resetAll()">Reset All</div>
-                </div>
+                <div class="reset-btn" onclick="resetAll()">🔄 Reset All</div>
                 <div class="diff-label">PRICE DIFFERENCE</div>
                 <div class="diff-percent" id="ui-percent">0%</div>
                 <div class="status-text text-green" id="ui-status"></div>
@@ -301,10 +312,8 @@
         let state = { you: [], them: [] };
         let currentActiveSide = '';
 
-        // Untuk notifikasi kurang dan kotak "Price:" (Contoh: 15.000.000)
         function formatVal(num) { return num.toLocaleString('id-ID'); }
         
-        // Untuk label di dalam kotak buah saja (Contoh: 15M, 600k)
         function formatShort(num) {
             if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
             if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'k';
@@ -323,14 +332,6 @@
         }
 
         function init() {
-            if (window.innerWidth <= 768) {
-                document.getElementById('pc-reset').style.display = 'none';
-                document.getElementById('mobile-reset').style.display = 'flex';
-            } else {
-                document.getElementById('pc-reset').style.display = 'flex';
-                document.getElementById('mobile-reset').style.display = 'none';
-            }
-
             const modalList = document.getElementById('fruit-list-modal');
             modalList.innerHTML = ''; 
 
@@ -350,13 +351,25 @@
             updateUI();
         }
 
+        // FUNGSI BUKA POPUP DENGAN ANIMASI
         function openModal(side) {
             currentActiveSide = side;
-            document.getElementById('modal').style.display = 'flex';
+            const modal = document.getElementById('modal');
+            modal.style.display = 'flex';
+            // Jeda super singkat agar CSS Transition (Animasi) bisa tereksekusi
+            requestAnimationFrame(() => {
+                modal.classList.add('show');
+            });
         }
 
+        // FUNGSI TUTUP POPUP DENGAN ANIMASI
         function closeModal() {
-            document.getElementById('modal').style.display = 'none';
+            const modal = document.getElementById('modal');
+            modal.classList.remove('show');
+            // Tunggu animasi mengecil selesai (0.15s) lalu sembunyikan total
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 150); 
         }
         
         function closeModalOnOutsideClick(e) {
@@ -415,7 +428,6 @@
                 gridEl.appendChild(slotDiv);
             }
 
-            // Teks Harga diubah menggunakan angka penuh (formatVal)
             document.getElementById(`${side}-total-price`).innerHTML = `
                 <span style="color: #2ecc71; margin-right: 5px;">Price:</span> 
                 <span>${formatVal(totalBeli)}</span>
@@ -464,7 +476,7 @@
                 let shortfall = requiredBeli - min;
                 let whoNeedsMore = (you < them) ? "You" : "Them";
                 
-                // Notifikasi diubah menggunakan angka penuh (formatVal)
+                // Info Kekurangan Beli menggunakan angka utuh dan di-bold/besar
                 uiMissing.innerHTML = `${whoNeedsMore} Kurang: <br><span>${formatVal(shortfall)}</span>`;
                 uiMissing.style.display = 'block'; 
             }
