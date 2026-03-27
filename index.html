@@ -31,9 +31,9 @@
         
         .main-layout { 
             display: flex; 
-            justify-content: center; /* Rapikan ke tengah */
+            justify-content: center; 
             align-items: flex-start; 
-            gap: 2%; /* Jarak antar sisi */
+            gap: 2%; 
         }
 
         .side { width: 33%; text-align: center; }
@@ -57,7 +57,7 @@
         
         .slot-interactive { cursor: pointer; border: 2px solid #111; box-shadow: 2px 2px 5px rgba(0,0,0,0.4); background-color: #d1d5db; }
         .slot-interactive:hover { border-color: #f39c12; transform: translateY(-2px); }
-        .slot-disabled { background-color: #4a4a4a; border: 2px solid #222; cursor: default; } /* Warna slot mati direvisi */
+        .slot-disabled { background-color: #4a4a4a; border: 2px solid #222; cursor: default; } 
         .slot-plus { font-size: 60px; color: #888; font-weight: 300; }
 
         .fruit-in-slot { width: 100%; height: 100%; display: flex; flex-direction: column; }
@@ -76,7 +76,7 @@
         .status-text { font-size: 20px; font-weight: bold; color: #2ecc71; margin-top: 0;}
         
         .missing-info { background-color: rgba(231, 76, 60, 0.2); border: 1px solid #e74c3c; color: #ff7675; padding: 8px 12px; border-radius: 5px; font-size: 15px; font-weight: bold; margin-top: 5px; display: none; width: 90%;}
-        .missing-info span { color: white; font-size: 18px; font-weight: 900;} /* Font Beli diperbesar */
+        .missing-info span { color: white; font-size: 18px; font-weight: 900;} 
 
         /* Tampilan Harga */
         .totals-box { margin-top: 10px; width: 100%;}
@@ -96,18 +96,18 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.6); 
             display: none; justify-content: center; align-items: center; z-index: 1000;
-            opacity: 0; /* Untuk animasi awal */
+            opacity: 0; 
             transition: opacity 0.15s ease-in-out;
         }
-        .modal-overlay.show { opacity: 1; } /* Class aktif animasi */
+        .modal-overlay.show { opacity: 1; } 
 
         .modal-content {
             background-color: rgba(30, 30, 30, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             width: 90%; max-width: 850px; height: 85%; border-radius: 12px; border: 1px solid #555; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-            transform: scale(0.8); /* Ukuran awal animasi */
+            transform: scale(0.8); 
             transition: transform 0.15s ease-in-out;
         }
-        .modal-overlay.show .modal-content { transform: scale(1); } /* Ukuran akhir animasi */
+        .modal-overlay.show .modal-content { transform: scale(1); } 
 
         .modal-header { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
         .modal-header h3 { margin: 0; color: #f1c40f; font-size: 16px;}
@@ -157,11 +157,11 @@
             .calculator-container {
                 width: 100%;
                 height: 100%;
-                padding: 15px 10px 10px 10px;
+                padding: 40px 10px 10px 10px; /* <--- REVISI: Tambah jarak atas (40px) agar tidak mepet */
                 border-radius: 0;
                 display: flex;
                 flex-direction: column;
-                justify-content: flex-start; /* Dirapatkan ke atas */
+                justify-content: flex-start; 
                 align-items: center;
                 background-color: #333333; 
                 box-shadow: none;
@@ -170,13 +170,13 @@
             .main-layout {
                 flex-direction: row; 
                 flex-wrap: wrap; 
-                justify-content: center; /* Kiri-Kanan lebih rapat ke tengah */
-                gap: 4%; /* Jarak celah tengah */
+                justify-content: center; 
+                gap: 4%; 
                 align-items: flex-start;
                 width: 100%;
             }
             
-            .side { width: 45%; } /* Lebar sedikit dikurangi agar tidak mentok pinggir */
+            .side { width: 45%; } 
             .side h2 { font-size: 18px; margin: 0 0 8px 0; font-weight: bold;}
             
             .slot-grid { gap: 6px; }
@@ -190,17 +190,16 @@
             .totals-box { margin-top: 8px; }
             .total-row { font-size: 12px; padding: 6px 8px; border-radius: 4px; box-shadow: 0 2px 3px rgba(0,0,0,0.5);}
             
-            /* Center Area diatur agar marginnya pas, tidak terlalu jauh */
             .center-area { 
                 width: 100%; 
                 order: 3; 
-                margin-top: 15px; /* Jarak dipendekkan agar dekat dengan slot */
+                margin-top: 15px; 
                 padding: 0;
             }
             
             .reset-btn { padding: 6px 15px; font-size: 12px; margin-bottom: 10px;}
             
-            .diff-label { display: block; font-size: 13px; margin-bottom: 0px;} /* Teks dimunculkan */
+            .diff-label { display: block; font-size: 13px; margin-bottom: 0px;} 
             .diff-percent { font-size: 65px; margin: 0; text-shadow: 3px 3px 5px rgba(0,0,0,0.6);}
             .missing-info { padding: 8px 10px; font-size: 13px; margin-top: 5px; width: 90%; }
             .missing-info span { font-size: 16px; }
@@ -356,7 +355,6 @@
             currentActiveSide = side;
             const modal = document.getElementById('modal');
             modal.style.display = 'flex';
-            // Jeda super singkat agar CSS Transition (Animasi) bisa tereksekusi
             requestAnimationFrame(() => {
                 modal.classList.add('show');
             });
@@ -366,7 +364,6 @@
         function closeModal() {
             const modal = document.getElementById('modal');
             modal.classList.remove('show');
-            // Tunggu animasi mengecil selesai (0.15s) lalu sembunyikan total
             setTimeout(() => {
                 modal.style.display = 'none';
             }, 150); 
@@ -476,7 +473,6 @@
                 let shortfall = requiredBeli - min;
                 let whoNeedsMore = (you < them) ? "You" : "Them";
                 
-                // Info Kekurangan Beli menggunakan angka utuh dan di-bold/besar
                 uiMissing.innerHTML = `${whoNeedsMore} Kurang: <br><span>${formatVal(shortfall)}</span>`;
                 uiMissing.style.display = 'block'; 
             }
