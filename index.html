@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blox Fruits Calculator Pro</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #212121; 
+            color: white; 
+            margin: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh;
+        }
+
+        .calculator-container {
+            background-color: #36393e;
+            width: 900px;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            position: relative;
+        }
+        
+        .main-layout { display: flex; justify-content: space-between; align-items: flex-start; }
+
+        .side { width: 35%; text-align: center; }
+        .side h2 { margin: 0 0 15px 0; font-size: 24px; color: #eee; }
+
+        /* Grid Slot Buah */
+        .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        .slot {
+            width: 100%;
+            height: 180px; 
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            color: #333;
+            overflow: hidden;
+            transition: 0.2s ease;
+        }
+        
+        /* Slot interaktif */
+        .slot-interactive { cursor: pointer; border: 3px solid #111; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); background-color: #cfd8dc; }
+        .slot-interactive:hover { border-color: #f39c12; transform: translateY(-2px); }
+        
+        /* Slot kosong (mati) */
+        .slot-disabled { background-color: rgba(255,255,255,0.05); border: 3px dashed #555; cursor: default; }
+
+        .slot-plus { font-size: 70px; color: #78909c; font-weight: 300; }
+
+        /* Tampilan Buah di dalam Slot */
+        .fruit-in-slot { width: 100%; height: 100%; display: flex; flex-direction: column; }
+        .fruit-name { font-size: 15px; font-weight: bold; padding: 7px 0; background-color: rgba(255,255,255,0.4); border-bottom: 2px solid #222; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .fruit-img { flex-grow: 1; background-size: contain; background-position: center; background-repeat: no-repeat; margin: 10px; }
+        .fruit-price-tag { border-top: 3px solid #111; padding: 7px; font-weight: bold; background-color: #e0e0e0; font-size: 14px; color: #111;}
+
+        /* Area Tengah (Persentase) */
+        .center-area { width: 30%; text-align: center; display: flex; flex-direction: column; align-items: center; margin-top: 50px; }
+        .controls { display: flex; gap: 20px; margin-bottom: 30px; cursor: pointer; color: #b0bec5; font-size: 14px;}
+        .controls div:hover { color: white; }
+        .diff-label { color: #e74c3c; font-size: 18px; font-weight: bold; margin-top: 10px; text-transform: uppercase;}
+        .diff-percent { font-size: 56px; font-weight: bold; color: #e74c3c; margin: 5px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.5);}
+        .status-text { font-size: 26px; font-weight: bold; color: #2ecc71; margin-top: 10px; letter-spacing: 1px;}
+        
+        /* Kotak Notifikasi Kekurangan Beli */
+        .missing-info { background-color: rgba(231, 76, 60, 0.15); border: 1px solid #e74c3c; color: #ff7675; padding: 8px 15px; border-radius: 5px; font-size: 14px; font-weight: bold; margin-top: 15px; display: none; width: 80%;}
+        .missing-info span { color: white; }
+
+        /* Area Bawah (Total Price) */
+        .totals-box { margin-top: 25px; display: flex; flex-direction: column; gap: 12px;}
+        .total-row { background-color: #cfd8dc; padding: 10px 12px; display: flex; justify-content: center; border: 3px solid #c0392b; font-size: 18px; color: #111; font-weight: bold; border-radius: 3px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);}
+        .total-label { color: #c0392b; margin-right: 8px; text-transform: uppercase; font-size: 15px;}
+
+        /* Pop-up (Modal) Pemilihan Buah dengan Transparansi Efek Kaca */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5); 
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: rgba(38, 50, 56, 0.75); 
+            backdrop-filter: blur(8px); 
+            width: 90%; max-width: 850px; height: 85%;
+            border-radius: 12px; border: 2px solid #546e7a; display: flex; flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+        }
+        .modal-header { padding: 15px 20px; border-bottom: 1px solid rgba(84, 110, 122, 0.5); display: flex; justify-content: space-between; align-items: center; background-color: rgba(0,0,0,0.3); }
+        .modal-header h3 { margin: 0; color: #f1c40f; font-size: 18px;}
+        
+        /* TOMBOL CLOSE BULAT */
+        .modal-close { 
+            cursor: pointer; 
+            background: #c0392b; 
+            color: white; 
+            border: none; 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; /* Bikin jadi bulat sempurna */
+            font-weight: bold; 
+            font-size: 16px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            transition: 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .modal-close:hover { background-color: #e74c3c; transform: scale(1.1); }
+        
+        .modal-body { 
+            padding: 15px; 
+            overflow-y: auto; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); 
+            gap: 10px; 
+            align-items: start; 
+        }
+        
+        .fruit-btn {
+            border: 2px solid #111; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            color: #111; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            transition: 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            width: 100%; 
+            height: 135px; 
+        }
+        
+        /* Efek Hover dan Efek Klik (Animasi) */
+        .fruit-btn:hover { border-color: #f39c12; transform: translateY(-3px); }
+        .fruit-btn:active { transform: scale(0.92); transition: 0.05s; } /* Mengecil saat ditekan */
+        
+        .btn-img-container { 
+            flex: 1; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 5px; 
+            min-height: 50px; 
+        }
+        
+        .btn-img { 
+            width: 100%; 
+            height: 100%; 
+            background-size: contain; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+        }
+        
+        .btn-name { font-weight: bold; font-size: 12px; padding: 5px 2px; background-color: rgba(255,255,255,0.4); border-bottom: 2px solid #222; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .btn-price { border-top: 2px solid #111; padding: 5px; font-weight: bold; background-color: #e0e0e0; font-size: 12px; text-align: center; }
+        
+        /* WARNA BACKGROUND & PATTERN (SESUAI RARITY) */
+        .mythical-bg { background-color: #ff4757; background-image: url('assets/Fruit-BG.png'); background-size: cover; background-position: center; }
+        .legendary-bg { background-color: #9b59b6; background-image: url('assets/Fruit-BG.png'); background-size: cover; background-position: center; }
+        .rare-bg { background-color: #3498db; background-image: url('assets/Fruit-BG.png'); background-size: cover; background-position: center; }
+        .uncommon-bg { background-color: #2ecc71; background-image: url('assets/Fruit-BG.png'); background-size: cover; background-position: center; }
+        .common-bg { background-color: #95a5a6; background-image: url('assets/Fruit-BG.png'); background-size: cover; background-position: center; }
+
+        .legendary-bg .btn-name, .legendary-bg .fruit-name { color: white; background-color: rgba(0,0,0,0.3) !important; }
+        
+        /* Utility */
+        .text-green { color: #2ecc71 !important; }
+        .text-red { color: #e74c3c !important; }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(84, 110, 122, 0.8); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #78909c; }
+
+        @media screen and (max-width: 768px) {
+            .calculator-container {
+                width: 90%; /* Menyesuaikan lebar layar HP */
+                padding: 15px;
+            }
+            .main-layout {
+                flex-direction: column; /* Mengubah susunan dari samping jadi ke bawah */
+                align-items: center;
+            }
+            .side {
+                width: 100%; /* Kotak You dan Them jadi full menyesuaikan layar */
+            }
+            .center-area {
+                width: 100%;
+                margin-top: 20px;
+                margin-bottom: 30px;
+            }
+            .slot {
+                height: 160px; /* Agak dipendekkan sedikit biar pas di layar HP */
+            }
+            .diff-percent {
+                font-size: 40px; /* Ukuran font persentase disesuaikan */
+            }
+            .slot-plus {
+                font-size: 50px; /* Tombol plus disesuaikan */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <div class="main-layout">
+            <div class="side" id="side-you">
+                <h2>You</h2>
+                <div class="slot-grid" id="you-grid">
+                    </div>
+                <div class="totals-box">
+                    <div class="total-row"><span class="total-label">Price:</span> <span id="you-total-price">0</span></div>
+                </div>
+            </div>
+
+            <div class="center-area">
+                <div class="controls">
+                    <div onclick="resetAll()">🔄 Reset All</div>
+                </div>
+                <div class="diff-label">PRICE DIFFERENCE</div>
+                <div class="diff-percent" id="ui-percent">0%</div>
+                <div class="status-text text-green" id="ui-status">---</div>
+                
+                <div class="missing-info" id="ui-missing-info"></div>
+            </div>
+
+            <div class="side" id="side-them">
+                <h2>Them</h2>
+                <div class="slot-grid" id="them-grid">
+                    </div>
+                <div class="totals-box">
+                    <div class="total-row"><span class="total-label">Price:</span> <span id="them-total-price">0</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal" onclick="closeModalOnOutsideClick(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Pilih Buah (Maksimal 4)</h3>
+                <button class="modal-close" onclick="closeModal()">✖</button>
+            </div>
+            <div class="modal-body" id="fruit-list-modal">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Buah
+        const fruitData = [
+            // MYTHICAL (Merah)
+            { id: 'dragon', name: "Dragon", price: 15000000, img: "assets/Dragon.png", rarity: 'Mythical' },
+            { id: 'control', name: "Control", price: 9000000, img: "assets/Control.png", rarity: 'Mythical' },
+            { id: 'kitsune', name: "Kitsune", price: 8000000, img: "assets/Kitsune.png", rarity: 'Mythical' },
+            { id: 'tiger', name: "Tiger", price: 5000000, img: "assets/Tiger.png", rarity: 'Mythical' }, 
+            { id: 'yeti', name: "Yeti", price: 5000000, img: "assets/Yeti.png", rarity: 'Mythical' }, 
+            { id: 'spirit', name: "Spirit", price: 3400000, img: "assets/Spirit.png", rarity: 'Mythical' }, 
+            { id: 'gas', name: "Gas", price: 3200000, img: "assets/Gas.png", rarity: 'Mythical' }, 
+            { id: 'venom', name: "Venom", price: 3000000, img: "assets/Venom.png", rarity: 'Mythical' },
+            { id: 'shadow', name: "Shadow", price: 2900000, img: "assets/Shadow.png", rarity: 'Mythical' },
+            { id: 'dough', name: "Dough", price: 2800000, img: "assets/Dough.png", rarity: 'Mythical' },
+            { id: 'trex', name: "T-Rex", price: 2700000, img: "assets/T-Rex.png", rarity: 'Mythical' }, 
+            { id: 'mammoth', name: "Mammoth", price: 2700000, img: "assets/Mammoth.png", rarity: 'Mythical' }, 
+            { id: 'gravity', name: "Gravity", price: 2500000, img: "assets/Gravity.png", rarity: 'Mythical' },
+
+            // LEGENDARY (Ungu)
+            { id: 'blizzard', name: "Blizzard", price: 2400000, img: "assets/Blizzard.png", rarity: 'Legendary' },
+            { id: 'pain', name: "Pain", price: 2300000, img: "assets/Pain.png", rarity: 'Legendary' }, 
+            { id: 'rumble', name: "Rumble", price: 2100000, img: "assets/Rumble.png", rarity: 'Legendary' },
+            { id: 'portal', name: "Portal", price: 1900000, img: "assets/Portal.png", rarity: 'Legendary' }, 
+            { id: 'phoenix', name: "Phoenix", price: 1800000, img: "assets/Phoenix.png", rarity: 'Legendary' },
+            { id: 'sound', name: "Sound", price: 1700000, img: "assets/Sound.png", rarity: 'Legendary' }, 
+            { id: 'spider', name: "Spider", price: 1500000, img: "assets/Spider.png", rarity: 'Legendary' }, 
+            { id: 'creation', name: "Creation", price: 1400000, img: "assets/Creation.png", rarity: 'Legendary' }, 
+            { id: 'love', name: "Love", price: 1300000, img: "assets/Love.png", rarity: 'Legendary' },
+            { id: 'buddha', name: "Buddha", price: 1200000, img: "assets/Buddha.png", rarity: 'Legendary' },
+            { id: 'quake', name: "Quake", price: 1000000, img: "assets/Quake.png", rarity: 'Legendary' },
+
+            // RARE (Biru)
+            { id: 'magma', name: "Magma", price: 960000, img: "assets/Magma.png", rarity: 'Rare' },
+            { id: 'ghost', name: "Ghost", price: 940000, img: "assets/Ghost.png", rarity: 'Rare' }, 
+            { id: 'rubber', name: "Rubber", price: 750000, img: "assets/Rubber.png", rarity: 'Rare' },
+            { id: 'light', name: "Light", price: 650000, img: "assets/Light.png", rarity: 'Rare' },
+
+            // UNCOMMON (Hijau)
+            { id: 'diamond', name: "Diamond", price: 600000, img: "assets/Diamond.png", rarity: 'Uncommon' },
+            { id: 'eagle', name: "Eagle", price: 550000, img: "assets/Eagle.png", rarity: 'Uncommon' }, 
+            { id: 'dark', name: "Dark", price: 500000, img: "assets/Dark.png", rarity: 'Uncommon' },
+            { id: 'sand', name: "Sand", price: 420000, img: "assets/Sand.png", rarity: 'Uncommon' },
+            { id: 'ice', name: "Ice", price: 350000, img: "assets/Ice.png", rarity: 'Uncommon' },
+            { id: 'flame', name: "Flame", price: 250000, img: "assets/Flame.png", rarity: 'Uncommon' },
+
+            // COMMON (Abu-abu)
+            { id: 'spike', name: "Spike", price: 180000, img: "assets/Spike.png", rarity: 'Common' },
+            { id: 'smoke', name: "Smoke", price: 100000, img: "assets/Smoke.png", rarity: 'Common' },
+            { id: 'bomb', name: "Bomb", price: 80000, img: "assets/Bomb.png", rarity: 'Common' },
+            { id: 'spring', name: "Spring", price: 60000, img: "assets/Spring.png", rarity: 'Common' },
+            { id: 'blade', name: "Blade", price: 30000, img: "assets/Blade.png", rarity: 'Common' }, 
+            { id: 'spin', name: "Spin", price: 7500, img: "assets/Spin.png", rarity: 'Common' },
+            { id: 'rocket', name: "Rocket", price: 5000, img: "assets/Rocket.png", rarity: 'Common' }
+        ];
+
+        let state = {
+            you: [],
+            them: []
+        };
+
+        let currentActiveSide = '';
+
+        function formatVal(num) { return num.toLocaleString('id-ID'); }
+        
+        function formatShort(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1).replace('.0', '') + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1).replace('.0', '') + 'k';
+            return num;
+        }
+
+        function getRarityClass(rarity) {
+            switch(rarity) {
+                case 'Mythical': return 'mythical-bg';
+                case 'Legendary': return 'legendary-bg';
+                case 'Rare': return 'rare-bg';
+                case 'Uncommon': return 'uncommon-bg';
+                case 'Common': return 'common-bg';
+                default: return '';
+            }
+        }
+
+        function init() {
+            const modalList = document.getElementById('fruit-list-modal');
+            modalList.innerHTML = ''; 
+
+            fruitData.forEach(fruit => {
+                const btn = document.createElement('div');
+                btn.className = `fruit-btn ${getRarityClass(fruit.rarity)}`;
+                btn.onclick = () => selectFruit(fruit);
+                btn.innerHTML = `
+                    <div class="btn-name" title="${fruit.name}">${fruit.name}</div>
+                    <div class="btn-img-container">
+                        <div class="btn-img" style="background-image: url('${fruit.img}')"></div>
+                    </div>
+                    <div class="btn-price">${formatShort(fruit.price)}</div>
+                `;
+                modalList.appendChild(btn);
+            });
+            updateUI();
+        }
+
+        function openModal(side) {
+            currentActiveSide = side;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+        
+        // Opsional: Klik di luar kotak modal buat nutup
+        function closeModalOnOutsideClick(e) {
+            if(e.target.id === 'modal') {
+                closeModal();
+            }
+        }
+
+        function removeFruit(side, index) {
+            state[side].splice(index, 1);
+            updateUI();
+        }
+
+        // FUNGSI SELECT BUAH DENGAN AUTO CLOSE PAS PENUH
+        function selectFruit(fruit) {
+            if (state[currentActiveSide].length < 4) {
+                state[currentActiveSide].push(fruit);
+                updateUI(); 
+                
+                // Kalau slot udah keisi 4, langsung auto close
+                if (state[currentActiveSide].length === 4) {
+                    closeModal();
+                }
+            } else {
+                alert("Maksimal 4 buah dalam 1 meja!");
+            }
+        }
+
+        function resetAll() {
+            state.you = [];
+            state.them = [];
+            updateUI();
+        }
+
+        function renderSlots(side) {
+            const gridEl = document.getElementById(`${side}-grid`);
+            gridEl.innerHTML = ''; 
+            let totalBeli = 0;
+
+            for (let i = 0; i < 4; i++) {
+                const slotDiv = document.createElement('div');
+                
+                if (i < state[side].length) {
+                    const fruit = state[side][i];
+                    totalBeli += fruit.price;
+                    slotDiv.className = `slot slot-interactive ${getRarityClass(fruit.rarity)}`;
+                    slotDiv.onclick = () => removeFruit(side, i); 
+                    slotDiv.innerHTML = `
+                        <div class="fruit-in-slot">
+                            <div class="fruit-name">${fruit.name}</div>
+                            <div class="btn-img-container" style="padding: 10px;">
+                                <div class="btn-img" style="background-image: url('${fruit.img}')"></div>
+                            </div>
+                            <div class="fruit-price-tag">${formatShort(fruit.price)}</div>
+                        </div>`;
+                } else if (i === state[side].length) {
+                    slotDiv.className = `slot slot-interactive`;
+                    slotDiv.onclick = () => openModal(side); 
+                    slotDiv.innerHTML = `<span class="slot-plus">+</span>`;
+                } else {
+                    slotDiv.className = `slot slot-disabled`;
+                    slotDiv.innerHTML = ``;
+                }
+
+                gridEl.appendChild(slotDiv);
+            }
+
+            document.getElementById(`${side}-total-price`).innerText = formatVal(totalBeli);
+            return totalBeli;
+        }
+
+        function updateUI() {
+            let totalYou = renderSlots('you');
+            let totalThem = renderSlots('them');
+            calculateStatus(totalYou, totalThem);
+        }
+
+        function calculateStatus(you, them) {
+            const uiPercent = document.getElementById('ui-percent');
+            const uiStatus = document.getElementById('ui-status');
+            const uiMissing = document.getElementById('ui-missing-info');
+
+            if (you === 0 && them === 0) {
+                uiPercent.innerText = "0%";
+                uiPercent.className = "diff-percent";
+                uiStatus.innerText = "---";
+                uiStatus.className = "status-text";
+                uiMissing.style.display = 'none';
+                return;
+            }
+
+            let max = Math.max(you, them);
+            let min = Math.min(you, them);
+            
+            let diffValue = max - min;
+            let diffPercent = (diffValue / max) * 100;
+
+            uiPercent.innerText = Math.round(diffPercent) + "%";
+
+            if (min >= (max * 0.6)) {
+                uiPercent.classList.remove('text-red');
+                uiPercent.classList.add('text-green');
+                uiStatus.innerText = "FAIR / PROFIT";
+                uiStatus.classList.remove('text-red');
+                uiStatus.classList.add('text-green');
+                uiMissing.style.display = 'none'; 
+            } else {
+                uiPercent.classList.remove('text-green');
+                uiPercent.classList.add('text-red');
+                uiStatus.innerText = "CANNOT TRADE";
+                uiStatus.classList.remove('text-green');
+                uiStatus.classList.add('text-red');
+                
+                let requiredBeli = max * 0.6;
+                let shortfall = requiredBeli - min;
+                let whoNeedsMore = (you < them) ? "You" : "Them";
+                
+                uiMissing.innerHTML = `${whoNeedsMore} Kurang: <br><span>${formatVal(shortfall)} Beli</span>`;
+                uiMissing.style.display = 'block'; 
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
