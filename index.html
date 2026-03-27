@@ -3,214 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Blox Fruits Calculator</title>
+    <title>Blox Fruits Calculator Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
     <style>
-        /* =========================================
-           GAYA DASAR (DESKTOP & UMUM)
-           ========================================= */
+        :root {
+            /* Warna Tema Modern */
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #f59e0b;
+            --accent-glow: rgba(245, 158, 11, 0.4);
+            
+            /* Warna Rarity */
+            --mythical-top: #ef4444; --mythical-mid: rgba(220, 38, 38, 0.5); --mythical-bot: #450a0a;
+            --legendary-top: #d946ef; --legendary-mid: rgba(192, 38, 211, 0.5); --legendary-bot: #4a044e;
+            --rare-top: #3b82f6; --rare-mid: rgba(37, 99, 235, 0.5); --rare-bot: #172554;
+            --uncommon-top: #06b6d4; --uncommon-mid: rgba(8, 145, 178, 0.5); --uncommon-bot: #083344;
+            --common-top: #94a3b8; --common-mid: rgba(100, 116, 139, 0.5); --common-bot: #0f172a;
+        }
+
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #333333; 
-            color: white; 
-            margin: 0; 
-            padding: 0;
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
+            font-family: 'Poppins', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center; 
             min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .calculator-container {
-            background-color: #3a3a3a;
-            width: 900px;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 950px; max-width: 100%;
+            padding: 20px;
             box-sizing: border-box;
         }
         
         .main-layout { 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; 
-            gap: 2%; 
+            display: flex; justify-content: center; align-items: flex-start; gap: 3%; 
+            width: 100%;
         }
 
-        .side { width: 33%; text-align: center; }
-        .side h2 { margin: 0 0 15px 0; font-size: 24px; color: #fff; font-weight: bold;}
+        #side-you { order: 1; }
+        .center-area { order: 2; }
+        #side-them { order: 3; }
 
-        .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .side { 
+            width: 32%; text-align: center; 
+            background-color: var(--panel-bg);
+            padding: 15px; border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-sizing: border-box; 
+        }
+        .side h2 { 
+            margin: 0 0 15px 0; font-size: 20px; color: #fff; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px;
+            border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 8px;
+        }
+        #side-you h2 { border-color: #3b82f6; color: #60a5fa; }
+        #side-them h2 { border-color: #ef4444; color: #f87171; }
+
+        .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
         .slot {
-            width: 100%;
-            height: 160px; 
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            color: #333;
-            overflow: hidden;
-            transition: 0.1s ease;
+            width: 100%; height: 140px; 
+            border-radius: 10px;
+            display: flex; flex-direction: column; 
+            justify-content: space-between; align-items: center;
+            position: relative; overflow: hidden;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-sizing: border-box;
         }
         
-        .slot-interactive { cursor: pointer; border: 2px solid #111; box-shadow: 2px 2px 5px rgba(0,0,0,0.4); background-color: #d1d5db; }
-        .slot-interactive:hover { border-color: #f39c12; transform: translateY(-2px); }
-        .slot-disabled { background-color: #4a4a4a; border: 2px solid #222; cursor: default; } 
-        .slot-plus { font-size: 60px; color: #888; font-weight: 300; }
+        .slot-empty { 
+            background-color: rgba(255,255,255,0.02); border: 2px dashed rgba(255,255,255,0.15); 
+            cursor: pointer; justify-content: center;
+        }
+        .slot-empty:hover { border-color: var(--accent); background-color: rgba(245, 158, 11, 0.1); transform: translateY(-2px); }
+        .slot-plus { font-size: 40px; color: rgba(255,255,255,0.2); font-weight: 600; }
 
-        .fruit-in-slot { width: 100%; height: 100%; display: flex; flex-direction: column; }
-        .fruit-name { font-size: 13px; font-weight: bold; padding: 4px 0; background-color: rgba(255,255,255,0.3); border-bottom: 2px solid #111; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);}
-        .fruit-img { flex-grow: 1; background-size: contain; background-position: center; background-repeat: no-repeat; margin: 5px; }
-        .fruit-price-tag { border-top: 2px solid #111; padding: 6px; font-weight: bold; background-color: rgba(0,0,0,0.6); font-size: 13px; color: #fff;}
+        .slot-filled { 
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.05); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4); 
+        }
+        .slot-filled:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.6); border-color: #ef4444; }
+        .slot-disabled { background-color: rgba(0,0,0,0.2); border: 2px dashed rgba(255,255,255,0.05); cursor: not-allowed; } 
 
-        /* Tampilan Center Area */
-        .center-area { width: 30%; text-align: center; display: flex; flex-direction: column; align-items: center;}
+        .card-header {
+            flex-shrink: 0;
+            color: white; font-size: 11px; font-weight: 800; text-align: center; padding: 4px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8); border-bottom: 1px solid rgba(0,0,0,0.3); 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
+            letter-spacing: 0.5px; box-sizing: border-box;
+        }
         
-        .reset-btn { background-color: #e0e0e0; color: #111; padding: 6px 18px; border-radius: 5px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 14px; margin-bottom: 20px;}
-        .reset-btn:hover { background-color: #fff; }
+        .card-body {
+            position: relative; flex: 1; width: 100%;
+            min-height: 0; 
+            display: flex; justify-content: center; align-items: center; padding: 5px; box-sizing: border-box;
+        }
+        .fruit-img { max-width: 90%; max-height: 90%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.8)); transition: 0.2s; }
+        .slot-filled:hover .fruit-img { transform: scale(1.1); }
         
-        .diff-label { color: #ff6b6b; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;}
-        .diff-percent { font-size: 65px; font-weight: bold; color: #2ecc71; margin: -5px 0 5px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);}
-        .status-text { font-size: 20px; font-weight: bold; color: #2ecc71; margin-top: 0;}
-        
-        .missing-info { background-color: rgba(231, 76, 60, 0.2); border: 1px solid #e74c3c; color: #ff7675; padding: 8px 12px; border-radius: 5px; font-size: 15px; font-weight: bold; margin-top: 5px; display: none; width: 90%;}
-        .missing-info span { color: white; font-size: 18px; font-weight: 900;} 
+        .card-footer { 
+            flex-shrink: 0; 
+            width: 100%; text-align: center; padding: 4px; border-top: 1px solid rgba(0,0,0,0.5); 
+            font-size: 12px; font-weight: 800; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            box-sizing: border-box;
+        }
 
-        /* Tampilan Harga */
-        .totals-box { margin-top: 10px; width: 100%;}
+        /* =========================================
+           REVISI: ANIMASI SEKEJAP (Sangat Cepat)
+           ========================================= */
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.7); }
+            80% { transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        /* Dipercepat dari 0.3s menjadi 0.12s */
+        .animate-pop-in { animation: popIn 0.12s ease-out forwards; }
+
+        @keyframes popOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.6); }
+        }
+        /* Dipercepat dari 0.15s menjadi 0.08s */
+        .animate-pop-out { animation: popOut 0.08s ease-in forwards; pointer-events: none; }
+
+
+        /* BAGIAN TENGAH (INFORMASI) */
+        .center-area { 
+            width: 30%; text-align: center; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding-top: 20px; box-sizing: border-box;
+        }
+        
+        .reset-btn { 
+            background-color: rgba(239, 68, 68, 0.1); color: #ef4444; 
+            border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px;
+            padding: 10px 20px; font-weight: 800; font-size: 13px; cursor: pointer; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 30px; transition: 0.2s;
+            text-transform: uppercase; letter-spacing: 1px;
+            display: flex; align-items: center; gap: 8px; justify-content: center;
+        }
+        .reset-btn:hover { background-color: #ef4444; color: white; transform: translateY(-2px); }
+        .reset-btn:active { transform: scale(0.95); }
+        
+        .diff-label { color: var(--text-muted); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;}
+        .diff-percent { 
+            font-size: 70px; font-weight: 900; margin: -5px 0 0px 0; 
+            text-shadow: 0 4px 15px rgba(0,0,0,0.4); line-height: 1.1;
+        }
+        .status-text { font-size: 16px; font-weight: 800; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px;}
+        
+        .missing-info { 
+            background-color: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); 
+            color: #fca5a5; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 600; 
+            margin-top: 15px; display: none; width: 100%; box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1);
+        }
+        .missing-info span { color: #fff; font-size: 18px; font-weight: 900; letter-spacing: 1px; display: block; margin-top: 4px;} 
+
+        /* Tampilan Total Harga */
+        .totals-box { margin-top: 15px; width: 100%;}
         .total-row { 
-            background-color: #e0e0e0; 
-            padding: 8px 12px; 
-            border-radius: 5px; 
-            color: #111; 
-            font-size: 16px; 
-            font-weight: bold; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-            text-align: left;
+            background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
+            padding: 10px 15px; border-radius: 8px; color: #fff; font-size: 14px; font-weight: 800; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); display: flex; justify-content: space-between;
         }
 
-        /* MODAL POP UP DENGAN ANIMASI */
+        /* MODAL POP UP */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.6); 
+            background-color: rgba(15, 23, 42, 0.8); 
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             display: none; justify-content: center; align-items: center; z-index: 1000;
-            opacity: 0; 
-            transition: opacity 0.15s ease-in-out;
+            opacity: 0; transition: opacity 0.15s ease-in-out; /* Animasi modal dipercepat */
         }
         .modal-overlay.show { opacity: 1; } 
 
         .modal-content {
-            background-color: rgba(30, 30, 30, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            width: 90%; max-width: 850px; height: 85%; border-radius: 12px; border: 1px solid #555; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-            transform: scale(0.8); 
-            transition: transform 0.15s ease-in-out;
+            background-color: var(--panel-bg); 
+            width: 90%; max-width: 850px; height: 85%; border-radius: 16px; 
+            border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            transform: scale(0.95) translateY(10px); transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .modal-overlay.show .modal-content { transform: scale(1); } 
+        .modal-overlay.show .modal-content { transform: scale(1) translateY(0); } 
 
-        .modal-header { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h3 { margin: 0; color: #f1c40f; font-size: 16px;}
+        .modal-header { 
+            padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); 
+            display: flex; justify-content: space-between; align-items: center; 
+            background-color: rgba(0,0,0,0.2); border-radius: 16px 16px 0 0;
+        }
+        .modal-header h3 { margin: 0; color: var(--accent); font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;}
         
         .modal-close { 
-            cursor: pointer; background: #ff4757; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-weight: bold; font-size: 14px; display: flex; justify-content: center; align-items: center; padding: 0; transition: 0.2s;
+            cursor: pointer; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: none; 
+            width: 32px; height: 32px; border-radius: 50%; font-weight: bold; font-size: 16px; 
+            display: flex; justify-content: center; align-items: center; transition: 0.2s;
         }
-        .modal-close:hover { background-color: #ff6b81; transform: scale(1.1); }
+        .modal-close:hover { background-color: #ef4444; color: white; transform: rotate(90deg); }
         
-        .modal-body { padding: 15px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 8px; align-items: start; }
-        
-        .fruit-btn {
-            border: 2px solid #222; border-radius: 6px; cursor: pointer; color: #fff; display: flex; flex-direction: column; overflow: hidden; transition: 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.5); width: 100%; height: 120px; 
+        .modal-body { 
+            padding: 15px; overflow-y: auto; 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; align-items: start; 
         }
-        .fruit-btn:hover { border-color: #f39c12; transform: translateY(-2px); }
-        .fruit-btn:active { transform: scale(0.92); } 
-        
-        .btn-img-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 5px; min-height: 40px; }
-        .btn-img { width: 100%; height: 100%; background-size: contain; background-position: center; background-repeat: no-repeat; }
-        
-        .btn-name { font-weight: bold; font-size: 11px; padding: 4px 2px; background-color: rgba(255,255,255,0.25); border-bottom: 2px solid #111; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);}
-        .btn-price { border-top: 2px solid #111; padding: 4px; font-weight: bold; background-color: rgba(0,0,0,0.6); font-size: 11px; text-align: center; }
-        
-        /* WARNA BACKGROUND & PATTERN */
-        .mythical-bg { background-color: #b33939; background-image: url('assets/Fruit-BG.png'); background-size: cover; background-position: center; }
-        .legendary-bg { background-color: #8e44ad; background-image: url('assets/Fruit-BG.png'); background-size: cover; background-position: center; }
-        .rare-bg { background-color: #2980b9; background-image: url('assets/Fruit-BG.png'); background-size: cover; background-position: center; }
-        .uncommon-bg { background-color: #27ae60; background-image: url('assets/Fruit-BG.png'); background-size: cover; background-position: center; }
-        .common-bg { background-color: #7f8c8d; background-image: url('assets/Fruit-BG.png'); background-size: cover; background-position: center; }
 
-        .text-green { color: #2ecc71 !important; }
-        .text-red { color: #ff4757 !important; }
+        /* WARNA BACKGROUND KARTU */
+        .mythical-bg .card-header { background-color: var(--mythical-top); }
+        .mythical-bg .card-body { background: linear-gradient(to bottom, var(--mythical-mid), transparent), url('assets/Fruit-BG.png'); background-size: cover; }
+        .mythical-bg .card-footer { background-color: var(--mythical-bot); }
+
+        .legendary-bg .card-header { background-color: var(--legendary-top); }
+        .legendary-bg .card-body { background: linear-gradient(to bottom, var(--legendary-mid), transparent), url('assets/Fruit-BG.png'); background-size: cover; }
+        .legendary-bg .card-footer { background-color: var(--legendary-bot); }
+
+        .rare-bg .card-header { background-color: var(--rare-top); }
+        .rare-bg .card-body { background: linear-gradient(to bottom, var(--rare-mid), transparent), url('assets/Fruit-BG.png'); background-size: cover; }
+        .rare-bg .card-footer { background-color: var(--rare-bot); }
+
+        .uncommon-bg .card-header { background-color: var(--uncommon-top); }
+        .uncommon-bg .card-body { background: linear-gradient(to bottom, var(--uncommon-mid), transparent), url('assets/Fruit-BG.png'); background-size: cover; }
+        .uncommon-bg .card-footer { background-color: var(--uncommon-bot); }
+
+        .common-bg .card-header { background-color: var(--common-top); }
+        .common-bg .card-body { background: linear-gradient(to bottom, var(--common-mid), transparent), url('assets/Fruit-BG.png'); background-size: cover; }
+        .common-bg .card-footer { background-color: var(--common-bot); }
+
+        .text-green { color: #10b981 !important; text-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+        .text-red { color: #ef4444 !important; text-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
         
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-        /* =========================================
-           TAMPILAN KHUSUS HP (NO SCROLL / FIT)
-           ========================================= */
+        /* KHUSUS HP */
         @media screen and (max-width: 768px) {
-            body {
-                height: 100vh;
-                width: 100vw;
-                overflow: hidden;
-            }
-            .calculator-container {
-                width: 100%;
-                height: 100%;
-                padding: 40px 10px 10px 10px; /* <--- REVISI: Tambah jarak atas (40px) agar tidak mepet */
-                border-radius: 0;
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start; 
-                align-items: center;
-                background-color: #333333; 
-                box-shadow: none;
-            }
+            body { height: auto; min-height: 100vh; overflow-y: auto; padding: 10px 0 30px 0; }
+            .calculator-container { padding: 10px; height: auto; display: flex; flex-direction: column; }
+            .main-layout { display: flex; flex-wrap: wrap; gap: 15px 10px; width: 100%; justify-content: space-between; }
             
-            .main-layout {
-                flex-direction: row; 
-                flex-wrap: wrap; 
-                justify-content: center; 
-                gap: 4%; 
-                align-items: flex-start;
-                width: 100%;
-            }
+            #side-you { order: 1; }
+            #side-them { order: 2; }
+            .center-area { order: 3; width: 100%; margin-top: 10px; }
             
-            .side { width: 45%; } 
-            .side h2 { font-size: 18px; margin: 0 0 8px 0; font-weight: bold;}
+            .side { width: calc(50% - 5px); padding: 10px; border-radius: 12px; } 
+            .side h2 { font-size: 14px; margin: 0 0 10px 0; padding-bottom: 5px; }
             
             .slot-grid { gap: 6px; }
-            .slot { height: 15vh; min-height: 70px; border-width: 2px; border-radius: 5px;}
-            .slot-plus { font-size: 45px; }
+            .slot { height: 90px; border-radius: 8px;}
+            .slot-plus { font-size: 28px; }
             
-            .fruit-name { font-size: 10px; padding: 2px 0; border-bottom-width: 1px;}
-            .btn-img-container { padding: 2px; }
-            .fruit-price-tag { font-size: 10px; padding: 2px; border-top-width: 1px;}
+            .card-header { font-size: 8px; padding: 3px 0; }
+            .card-footer { font-size: 9px; padding: 3px; }
+            .card-body { padding: 4px; }
             
-            .totals-box { margin-top: 8px; }
-            .total-row { font-size: 12px; padding: 6px 8px; border-radius: 4px; box-shadow: 0 2px 3px rgba(0,0,0,0.5);}
+            .totals-box { margin-top: 10px; }
+            .total-row { font-size: 10px; padding: 6px 8px; flex-direction: column; text-align: center; gap: 2px;}
             
-            .center-area { 
-                width: 100%; 
-                order: 3; 
-                margin-top: 15px; 
-                padding: 0;
-            }
+            .center-area { padding: 0; }
+            .reset-btn { padding: 10px 0; width: 160px; font-size: 13px; margin: 0 auto 20px auto; }
             
-            .reset-btn { padding: 6px 15px; font-size: 12px; margin-bottom: 10px;}
+            .diff-label { font-size: 13px; margin-bottom: 0px; } 
+            .diff-percent { font-size: 65px; margin-top: -5px;}
+            .status-text { font-size: 14px; margin-top: 0; }
+            .missing-info { padding: 10px; font-size: 11px; margin-top: 5px; width: 90%; border-radius: 8px;}
+            .missing-info span { font-size: 15px; margin-top: 2px;}
             
-            .diff-label { display: block; font-size: 13px; margin-bottom: 0px;} 
-            .diff-percent { font-size: 65px; margin: 0; text-shadow: 3px 3px 5px rgba(0,0,0,0.6);}
-            .missing-info { padding: 8px 10px; font-size: 13px; margin-top: 5px; width: 90%; }
-            .missing-info span { font-size: 16px; }
-            
-            /* Modal HP */
-            .modal-content { height: 92vh; width: 95vw; }
-            .modal-header { padding: 12px; }
-            .modal-body { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; padding: 10px; }
-            .fruit-btn { height: 95px; border-width: 1px; border-radius: 5px;}
-            .fruit-btn .btn-name { font-size: 9px; padding: 2px; border-bottom-width: 1px;}
-            .fruit-btn .btn-price { font-size: 9px; padding: 2px; border-top-width: 1px;}
+            .modal-content { height: 92vh; width: 95vw; border-radius: 12px;}
+            .modal-header { padding: 12px 16px; border-radius: 12px 12px 0 0;}
+            .modal-header h3 { font-size: 14px; }
+            .modal-body { grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 8px; padding: 10px; }
+            .modal-body .slot { height: 105px; }
         }
     </style>
 </head>
@@ -227,8 +294,10 @@
             </div>
 
             <div class="center-area">
-                <div class="reset-btn" onclick="resetAll()">🔄 Reset All</div>
-                <div class="diff-label">PRICE DIFFERENCE</div>
+                <button class="reset-btn" onclick="resetAll()">
+                    <span>🔄</span> Reset All
+                </button>
+                <div class="diff-label">Price Difference</div>
                 <div class="diff-percent" id="ui-percent">0%</div>
                 <div class="status-text text-green" id="ui-status"></div>
                 <div class="missing-info" id="ui-missing-info"></div>
@@ -247,7 +316,7 @@
     <div class="modal-overlay" id="modal" onclick="closeModalOnOutsideClick(event)">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Pilih Buah (Max 4)</h3>
+                <h3>Pilih Buah</h3>
                 <button class="modal-close" onclick="closeModal()">✖</button>
             </div>
             <div class="modal-body" id="fruit-list-modal"></div>
@@ -255,8 +324,8 @@
     </div>
 
     <script>
+        // REVISI: Skin dihapus dari daftar buah
         const fruitData = [
-            // MYTHICAL (Merah)
             { id: 'dragon', name: "Dragon", price: 15000000, img: "assets/Dragon.png", rarity: 'Mythical' },
             { id: 'control', name: "Control", price: 9000000, img: "assets/Control.png", rarity: 'Mythical' },
             { id: 'kitsune', name: "Kitsune", price: 8000000, img: "assets/Kitsune.png", rarity: 'Mythical' },
@@ -271,7 +340,6 @@
             { id: 'mammoth', name: "Mammoth", price: 2700000, img: "assets/Mammoth.png", rarity: 'Mythical' }, 
             { id: 'gravity', name: "Gravity", price: 2500000, img: "assets/Gravity.png", rarity: 'Mythical' },
 
-            // LEGENDARY (Ungu)
             { id: 'blizzard', name: "Blizzard", price: 2400000, img: "assets/Blizzard.png", rarity: 'Legendary' },
             { id: 'pain', name: "Pain", price: 2300000, img: "assets/Pain.png", rarity: 'Legendary' }, 
             { id: 'rumble', name: "Rumble", price: 2100000, img: "assets/Rumble.png", rarity: 'Legendary' },
@@ -284,13 +352,11 @@
             { id: 'buddha', name: "Buddha", price: 1200000, img: "assets/Buddha.png", rarity: 'Legendary' },
             { id: 'quake', name: "Quake", price: 1000000, img: "assets/Quake.png", rarity: 'Legendary' },
 
-            // RARE (Biru)
             { id: 'magma', name: "Magma", price: 960000, img: "assets/Magma.png", rarity: 'Rare' },
             { id: 'ghost', name: "Ghost", price: 940000, img: "assets/Ghost.png", rarity: 'Rare' }, 
             { id: 'rubber', name: "Rubber", price: 750000, img: "assets/Rubber.png", rarity: 'Rare' },
             { id: 'light', name: "Light", price: 650000, img: "assets/Light.png", rarity: 'Rare' },
 
-            // UNCOMMON (Hijau)
             { id: 'diamond', name: "Diamond", price: 600000, img: "assets/Diamond.png", rarity: 'Uncommon' },
             { id: 'eagle', name: "Eagle", price: 550000, img: "assets/Eagle.png", rarity: 'Uncommon' }, 
             { id: 'dark', name: "Dark", price: 500000, img: "assets/Dark.png", rarity: 'Uncommon' },
@@ -298,7 +364,6 @@
             { id: 'ice', name: "Ice", price: 350000, img: "assets/Ice.png", rarity: 'Uncommon' },
             { id: 'flame', name: "Flame", price: 250000, img: "assets/Flame.png", rarity: 'Uncommon' },
 
-            // COMMON (Abu-abu)
             { id: 'spike', name: "Spike", price: 180000, img: "assets/Spike.png", rarity: 'Common' },
             { id: 'smoke', name: "Smoke", price: 100000, img: "assets/Smoke.png", rarity: 'Common' },
             { id: 'bomb', name: "Bomb", price: 80000, img: "assets/Bomb.png", rarity: 'Common' },
@@ -310,6 +375,8 @@
 
         let state = { you: [], them: [] };
         let currentActiveSide = '';
+        
+        let animatedSlot = { side: null, index: null };
 
         function formatVal(num) { return num.toLocaleString('id-ID'); }
         
@@ -336,21 +403,22 @@
 
             fruitData.forEach(fruit => {
                 const btn = document.createElement('div');
-                btn.className = `fruit-btn ${getRarityClass(fruit.rarity)}`;
-                btn.onclick = () => selectFruit(fruit);
+                btn.className = `slot slot-filled ${getRarityClass(fruit.rarity)}`;
+                
+                btn.onclick = function() { selectFruitWithAnim(fruit, this); };
+                
                 btn.innerHTML = `
-                    <div class="btn-name" title="${fruit.name}">${fruit.name}</div>
-                    <div class="btn-img-container">
-                        <div class="btn-img" style="background-image: url('${fruit.img}')"></div>
+                    <div class="card-header" title="${fruit.name}">${fruit.name}</div>
+                    <div class="card-body">
+                        <img src="${fruit.img}" alt="${fruit.name}" loading="lazy" class="fruit-img">
                     </div>
-                    <div class="btn-price">${formatShort(fruit.price)}</div>
+                    <div class="card-footer">${formatShort(fruit.price)}</div>
                 `;
                 modalList.appendChild(btn);
             });
             updateUI();
         }
 
-        // FUNGSI BUKA POPUP DENGAN ANIMASI
         function openModal(side) {
             currentActiveSide = side;
             const modal = document.getElementById('modal');
@@ -360,32 +428,53 @@
             });
         }
 
-        // FUNGSI TUTUP POPUP DENGAN ANIMASI
         function closeModal() {
             const modal = document.getElementById('modal');
             modal.classList.remove('show');
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 150); 
+            // Timeout disesuaikan dengan transisi CSS modal
+            setTimeout(() => { modal.style.display = 'none'; }, 150); 
         }
         
         function closeModalOnOutsideClick(e) {
             if(e.target.id === 'modal') closeModal();
         }
 
-        function removeFruit(side, index) {
-            state[side].splice(index, 1);
-            updateUI();
-        }
-
-        function selectFruit(fruit) {
+        // FUNGSI PILIH BUAH
+        function selectFruitWithAnim(fruit, element) {
+            if (element.classList.contains('animate-pop-out')) return; 
+            
             if (state[currentActiveSide].length < 4) {
-                state[currentActiveSide].push(fruit);
-                updateUI(); 
-                if (state[currentActiveSide].length === 4) closeModal();
+                element.classList.add('animate-pop-out');
+                
+                // REVISI: Dipercepat menjadi 80ms
+                setTimeout(() => {
+                    animatedSlot = { side: currentActiveSide, index: state[currentActiveSide].length };
+                    
+                    state[currentActiveSide].push(fruit);
+                    updateUI(); 
+                    
+                    if (state[currentActiveSide].length === 4) closeModal();
+                    
+                    element.classList.remove('animate-pop-out');
+                }, 80);
             } else {
                 alert("Maksimal 4 buah dalam 1 meja!");
             }
+        }
+
+        // FUNGSI HAPUS BUAH
+        function removeFruitWithAnim(side, fruitObj, element) {
+            element.classList.remove('animate-pop-in');
+            element.classList.add('animate-pop-out');
+            
+            // REVISI: Dipercepat menjadi 80ms
+            setTimeout(() => {
+                const idx = state[side].indexOf(fruitObj);
+                if (idx > -1) {
+                    state[side].splice(idx, 1);
+                    updateUI();
+                }
+            }, 80);
         }
 
         function resetAll() {
@@ -404,18 +493,24 @@
                 if (i < state[side].length) {
                     const fruit = state[side][i];
                     totalBeli += fruit.price;
-                    slotDiv.className = `slot slot-interactive ${getRarityClass(fruit.rarity)}`;
-                    slotDiv.onclick = () => removeFruit(side, i); 
+                    slotDiv.className = `slot slot-filled ${getRarityClass(fruit.rarity)}`;
+                    
+                    slotDiv.onclick = function() { removeFruitWithAnim(side, fruit, this); }; 
+                    
                     slotDiv.innerHTML = `
-                        <div class="fruit-in-slot">
-                            <div class="fruit-name">${fruit.name}</div>
-                            <div class="btn-img-container">
-                                <div class="btn-img" style="background-image: url('${fruit.img}')"></div>
-                            </div>
-                            <div class="fruit-price-tag">${formatShort(fruit.price)}</div>
-                        </div>`;
+                        <div class="card-header">${fruit.name}</div>
+                        <div class="card-body">
+                            <img src="${fruit.img}" alt="${fruit.name}" class="fruit-img">
+                        </div>
+                        <div class="card-footer">${formatShort(fruit.price)}</div>
+                    `;
+
+                    if (animatedSlot.side === side && animatedSlot.index === i) {
+                        slotDiv.classList.add('animate-pop-in');
+                    }
+
                 } else if (i === state[side].length) {
-                    slotDiv.className = `slot slot-interactive`;
+                    slotDiv.className = `slot slot-empty`;
                     slotDiv.onclick = () => openModal(side); 
                     slotDiv.innerHTML = `<span class="slot-plus">+</span>`;
                 } else {
@@ -426,8 +521,8 @@
             }
 
             document.getElementById(`${side}-total-price`).innerHTML = `
-                <span style="color: #2ecc71; margin-right: 5px;">Price:</span> 
-                <span>${formatVal(totalBeli)}</span>
+                <span style="color: var(--text-muted);">Total Value:</span> 
+                <span style="color: var(--accent);">$${formatVal(totalBeli)}</span>
             `;
             return totalBeli;
         }
@@ -436,6 +531,8 @@
             let totalYou = renderSlots('you');
             let totalThem = renderSlots('them');
             calculateStatus(totalYou, totalThem);
+            
+            animatedSlot = { side: null, index: null };
         }
 
         function calculateStatus(you, them) {
@@ -462,18 +559,18 @@
             if (min >= (max * 0.6)) {
                 uiPercent.classList.remove('text-red');
                 uiPercent.classList.add('text-green');
-                uiStatus.innerText = ""; 
+                uiStatus.innerText = "TRADE FAIR"; 
                 uiMissing.style.display = 'none'; 
             } else {
                 uiPercent.classList.remove('text-green');
                 uiPercent.classList.add('text-red');
-                uiStatus.innerText = "";
+                uiStatus.innerText = "INVALID";
                 
                 let requiredBeli = max * 0.6;
                 let shortfall = requiredBeli - min;
                 let whoNeedsMore = (you < them) ? "You" : "Them";
                 
-                uiMissing.innerHTML = `${whoNeedsMore} Kurang: <br><span>${formatVal(shortfall)}</span>`;
+                uiMissing.innerHTML = `${whoNeedsMore} Need Adds:<br><span>$${formatVal(shortfall)}</span>`;
                 uiMissing.style.display = 'block'; 
             }
         }
